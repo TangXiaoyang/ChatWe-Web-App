@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>ChatCat - <%= roomName %></title>
+	<link rel="stylesheet" href="/css/bs.css">
+	<link rel="stylesheet" href="/css/chatroomStyles.css">
+	<script src="/js/jquery-2.1.4.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://widget.cloudinary.com/global/all.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script>
+	'use strict';
+	$(() => {
+		let socket = io('<%= host %>' + '/chatters');
+		let roomID = '<%= roomID %>';
+		let chatters = $(".chatUsers");
+		let inputArea = $("input[name=userInput]");
+		let mArea = $(".chatMessages");
+		let upPicBtn = $("#uploadFile");
+		let selfBubbleColor = '#9EEA6A';
+		let othersBubbleColor = '#F5F5F5';
+
+		socket.on('connect', () => {
+			socket.emit('join', {
+				roomID: roomID,
+				userID: '<%= user.profileId %>',
+				userName: '<%= user.fullName %>',
+				userPic: '<%= user.profilePic %>'
+			});
+		});
+
+		socket.on('updateChatters', chattersList => {
+			renderChatters(JSON.parse(chattersList));
+		});
+
+		let renderChatters = chattersList => {
+			let temp = '';
+			console.log(chattersList);
+			for(let user of chattersList){
+				temp += `<div class="userBlock">
+					<div class="userPic"><img src="${user.userPic}" alt="${user.userName}"></div>
+					<div class="cuserName">${user.userName}</div>
+				</div>`;
+			}
+			console.log(temp);
+			chatters.html('').append(temp);
+		}
+
+		inputArea.on('keyup', function(evt){
+			evt.preventDefault();
+			let message = $(this);
+			if(evt.which == 13 && message.val() != ''){
+				socket.emit('newMessage', {
+					roomID: roomID,
+					userID: '<%= user.profileId %>',
+					userName: '<%= user.fullName %>',
+					userPic: '<%= user.profilePic %>',
+					message: message.val()
+				});
+				renderMessage('<%= user.profilePic %>', message.val(), selfBubbleColor);
+				message.val('');
+			}
+		});
+
+		let renderMessage = (userPic, m, c) => {
+			let template = `<div class="chatBlock">
+								<img class='cimg' src="${userPic}">
+								<div class="well" style='background-color: ${c};'>${m}</div>
+							</div>`;
+			$(template).appendTo(mArea);
+			document.querySelector("#chatBox").scrollTop = document.querySelector("#chatBox").scrollHeight;
+		}
+
+
+		socket.on('inMessage', data => {
+			let d = JSON.parse(data);
+			renderMessage(d.userPic, d.message, othersBubbleColor);
+		});
+
+		upPicBtn.on('click', function(evt){
+			cloudinary.openUploadWidget({
+				cloud_name: 'dugva6we1',
+				upload_preset: 'zm1tfhbx'
+			}, (error, result) => {
+				if(!error){
+					let temp = '';
+					for(let img of result){
+						temp += `<img src="${img.url}">`;
+
+						renderMessage('<%= user.profilePic %>', temp, selfBubbleColor);
+
+						socket.emit('newMessage', {
+							roomID: roomID,
+							userID: '<%= user.profileId %>',
+							userName: '<%= user.fullName %>',
+							userPic: '<%= user.profilePic %>',
+							message: temp
+						});
+					}
+				}
+			});
+		});
+
+	});
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="titlePanel">
+			<h1>ChatCAT | <%= roomName %></h1>
+		</div>
+		<div class="controls">
+			<div class="userPicHolder"><img src="<%= user.profilePic %>" alt="<%= user.fullName %>"></div>
+			<p class="userName"><%= user.fullName %></p>
+			<a href="/rooms" id="roomsBtn" class="btn btn-success">Rooms</a>
+			<a href="/logout" id="logOutBtn" class="btn btn-danger">Logout</a>
+		</div>
+		<div class="chatListDiv">
+			<div class="chatMessagesPanel">
+				<div class="chatMessages" id="chatBox">
+				<!-- Loop this for chat messages -->
+
+				<!-- loop end -->
+				</div>
+				<div class="typePanel">
+					<input type="text" autofocus name="userInput" placeholder="Type here and press enter">
+					<a href="#" id="uploadFile" class="fileUploadBtn btn btn-primary">Photo</a>
+				</div>
+			</div>
+			<div class="chatUsers">
+			<!-- Loop this for chat users -->
+				<div class="userBlock">
+				</div>
+			<!-- loop end -->
+			</div>
+		</div>
+	</div>
+</body>
+</html>
