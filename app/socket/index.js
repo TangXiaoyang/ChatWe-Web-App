@@ -5,7 +5,6 @@ module.exports = (io, app) => {
     let allRooms = app.locals.chatrooms;
 
     io.of('/roomlist').on('connection', socket => {
-        console.log('Socet.io connected to the client');
         socket.on('getRoomList', () => {
             socket.emit('roomlist', JSON.stringify(allRooms));
         });
