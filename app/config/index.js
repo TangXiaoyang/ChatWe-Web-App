@@ -8,7 +8,7 @@ if(process.env.NODE_ENV === 'production'){
         fb: {
             clientID: process.env.fbClientID,
             clientSecret: process.env.fbClientSecret,
-            callbackURL: prrocess.env.host + "/auth/facebook/callback",
+            callbackURL: process.env.host + "/auth/facebook/callback",
             profileFields: ['id', 'displayName', 'photos']
         },
         tw: {
