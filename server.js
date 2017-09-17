@@ -15,4 +15,4 @@ app.use(passport.session());
 app.use('/', chatCat.router);
 
 
-chatCat.ioServer(app).listen(process.env.PORT || 5000);
+chatCat.ioServer(app).listen(process.env.PORT || 3000);
