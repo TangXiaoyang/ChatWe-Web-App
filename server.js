@@ -15,6 +15,4 @@ app.use(passport.session());
 app.use('/', chatCat.router);
 
 
-chatCat.ioServer(app).listen(3000, () => {
-    console.log('listening form port ', 3000);
-});
+chatCat.ioServer(app).listen(3000);
