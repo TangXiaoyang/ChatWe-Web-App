@@ -163,10 +163,10 @@
 
 input[name='userInput'] {
 	position:absolute;
-	padding: 24px;
+	padding: 22px;
 	font-size: 22px;
 	width: 537px;
-	height: 23px;
+	height: 31px;
 	top: 0px;
 	outline: 0px;
 	left: 0px;
